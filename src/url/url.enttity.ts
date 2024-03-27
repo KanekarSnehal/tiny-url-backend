@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from 'src/user/user.entity';
 
 @Entity()
@@ -12,12 +12,16 @@ export class Url {
     @Column({ type: 'timestamp', default: () => `CURRENT_TIMESTAMP + INTERVAL '10 years'` })
     expiration: Date;
 
-    @ManyToOne(() => User)
-    created_by: User;
+    @Column()
+    public created_by: number;
 
     @Column({ type: 'text', nullable: true, default: null })
     custom_back_half: string | null;
 
     @Column({ type: 'text', nullable: true })
     qr_code: string;
+
+    @ManyToOne(() => User)
+    @JoinColumn({ name: 'created_by' })
+    public creater: User;
 }
