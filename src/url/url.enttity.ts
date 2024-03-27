@@ -21,6 +21,9 @@ export class Url {
     @Column({ type: 'text', nullable: true })
     qr_code: string;
 
+    @Column({ type: 'text', nullable: true })
+    title: string;
+
     @ManyToOne(() => User)
     @JoinColumn({ name: 'created_by' })
     public creater: User;
