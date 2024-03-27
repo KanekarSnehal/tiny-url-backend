@@ -4,10 +4,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UrlModule } from './url/url.module';
 import { UserModule } from './user/user.module';
+import { Url } from './url/url.enttity';
+import { User } from './user/user.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: ['.env.local', '.env.development', '.env'],
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -17,7 +21,7 @@ import { UserModule } from './user/user.module';
         username: configService.get('MYSQL_USER'),
         password: configService.get('MYSQL_PASS'),
         database: configService.get('MYSQL_DB'),
-        entities: [],
+        entities: [Url, User],
         synchronize: true,
       }),
       inject: [ConfigService]
