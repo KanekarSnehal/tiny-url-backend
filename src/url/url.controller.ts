@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Ip, Param, Post, Put, Query, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Ip, Param, Post, Put, Query, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
 import { CreateUrlDto, UpdateUrlDto, createUrlPayloadSchema, updateUrlPayloadSchema } from './url.schema';
 import { UrlService } from './url.service';
@@ -65,6 +65,23 @@ export class UrlController {
         try {
             const { id, custom_back_half, title } = updateUrlDto;
             this.urlService.updateTinyUrlDetails(id, { custom_back_half, title });
+            return {
+                status: 'success',
+                message: 'Tiny url details updated successfully'
+            };
+        } catch(error) {
+            throw error;
+        }
+    }
+
+    @Delete(':id')
+    async deleteTinyUrlByUrlId(@Param('id') id: string) {
+        try {
+            this.urlService.deleteTinyUrlByUrlId(id);
+            return {
+                status: 'success',
+                message: 'Tiny url deleted successfully'
+            };
         } catch(error) {
             throw error;
         }

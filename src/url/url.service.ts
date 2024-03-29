@@ -32,4 +32,8 @@ export class UrlService {
     updateTinyUrlDetails(id: string, updateUrlData: UpdateUrlDto) {
         return this.urlRepository.update(id, updateUrlData);
     }
+
+    deleteTinyUrlByUrlId(urlId: string) {
+        return this.urlRepository.delete(urlId);
+    }
 }
