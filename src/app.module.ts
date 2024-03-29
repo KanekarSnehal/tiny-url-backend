@@ -6,6 +6,7 @@ import { UrlModule } from './url/url.module';
 import { UserModule } from './user/user.module';
 import { Url } from './url/url.enttity';
 import { User } from './user/user.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { User } from './user/user.entity';
       inject: [ConfigService]
     }),
     UrlModule,
-    UserModule
+    UserModule,
+    AuthModule
   ],
   controllers: [],
   providers: [AppService],
