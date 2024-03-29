@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Ip, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Ip, Param, Post, Query, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
 import { CreateUrlDto, createUrlPayloadSchema } from './url.schema';
 import { UrlService } from './url.service';
@@ -15,6 +15,15 @@ export class UrlController {
         try {
             const userId = 1;
             return this.urlService.getListOfTinyUrlByUserId(userId);
+        } catch(error) {
+            throw error;
+        }
+    }
+    
+    @Get()
+    async getDetailsOfTinyUrlByUrlId(@Query('id') id: string) {
+        try {
+            return this.urlService.getDetailsOfTinyUrlByUrlId(id);
         } catch(error) {
             throw error;
         }

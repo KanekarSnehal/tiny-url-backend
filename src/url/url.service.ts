@@ -11,9 +11,17 @@ export class UrlService {
         private urlRepository: Repository<Url>
     ) { }
 
-    getListOfTinyUrlByUserId(userId) {
+    getListOfTinyUrlByUserId(userId: number) {
         return this.urlRepository.findBy({
             created_by: userId
+        });
+    }
+
+    getDetailsOfTinyUrlByUrlId(urlId: string) {
+        return this.urlRepository.findOne({
+            where: {
+                id: urlId
+            }
         });
     }
 
