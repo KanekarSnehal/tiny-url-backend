@@ -24,6 +24,9 @@ export class Url {
     @Column({ type: 'text', nullable: true })
     title: string;
 
+    @Column({ type: 'varchar', nullable: true, default: null })
+    custom_domain: string | null;
+
     @ManyToOne(() => User)
     @JoinColumn({ name: 'created_by' })
     public creater: User;
