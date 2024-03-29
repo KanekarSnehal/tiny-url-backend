@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Url } from './url.enttity';
 import { Repository } from 'typeorm';
-import { CreateUrlServiceDto } from './url.schema';
+import { CreateUrlServiceDto, UpdateUrlDto } from './url.schema';
 
 @Injectable()
 export class UrlService {
@@ -27,5 +27,9 @@ export class UrlService {
 
     createTinyUrl(createUrlData: CreateUrlServiceDto) {
         return this.urlRepository.save(createUrlData);
+    }
+
+    updateTinyUrlDetails(id: string, updateUrlData: UpdateUrlDto) {
+        return this.urlRepository.update(id, updateUrlData);
     }
 }

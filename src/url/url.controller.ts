@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Ip, Param, Post, Query, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Ip, Param, Post, Put, Query, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
-import { CreateUrlDto, createUrlPayloadSchema } from './url.schema';
+import { CreateUrlDto, UpdateUrlDto, createUrlPayloadSchema, updateUrlPayloadSchema } from './url.schema';
 import { UrlService } from './url.service';
 import { generateUniqueHash } from '../utils/generateUniqueHash';
 import { ConfigService } from '@nestjs/config';
@@ -54,6 +54,17 @@ export class UrlController {
                 status: 'success',
                 message: 'Tiny url created successfully'
             };
+        } catch(error) {
+            throw error;
+        }
+    }
+
+    @Put()
+    @UsePipes(new ZodValidationPipe(updateUrlPayloadSchema))
+    async updateTinyUrlDetails(@Body() updateUrlDto: UpdateUrlDto) {
+        try {
+            const { id, custom_back_half, title } = updateUrlDto;
+            this.urlService.updateTinyUrlDetails(id, { custom_back_half, title });
         } catch(error) {
             throw error;
         }

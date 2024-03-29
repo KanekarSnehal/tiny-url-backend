@@ -18,3 +18,15 @@ export type CreateUrlDto = z.infer<typeof createUrlPayloadSchema>;
 export const createUrlServiceSchema = createUrlPayloadSchema.required({ created_by: true, id: true });
 
 export type CreateUrlServiceDto = z.infer<typeof createUrlServiceSchema>;
+
+
+export const updateUrlZObject = z
+  .object({
+    title: z.string(),
+    custom_back_half: z.string(),
+    id: z.string(),
+  }).partial();
+
+export const updateUrlPayloadSchema = updateUrlZObject.required({ id: true });
+
+export type UpdateUrlDto = z.infer<typeof updateUrlPayloadSchema>;
