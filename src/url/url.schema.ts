@@ -5,9 +5,16 @@ export const createUrlZObject = z
     long_url: z.string().url({ message: 'Invalid Url'}),
     title: z.string(),
     custom_back_half: z.string(),
-    generate_qr: z.boolean()
+    generate_qr: z.coerce.boolean(),
+    id: z.string(),
+    created_by: z.number(),
+    qr_code: z.string()
   }).partial();
 
-export const createUrlSchema = createUrlZObject.required({ long_url: true });
+export const createUrlPayloadSchema = createUrlZObject.required({ long_url: true });
 
-export type CreateUrlDto = z.infer<typeof createUrlSchema>;
+export type CreateUrlDto = z.infer<typeof createUrlPayloadSchema>;
+
+export const createUrlServiceSchema = createUrlPayloadSchema.required({ created_by: true, id: true });
+
+export type CreateUrlServiceDto = z.infer<typeof createUrlServiceSchema>;
