@@ -11,7 +11,13 @@ export class UrlService {
         private urlRepository: Repository<Url>
     ) { }
 
-    crreateTinyUrl(createUrlData: CreateUrlServiceDto) {
+    getListOfTinyUrlByUserId(userId) {
+        return this.urlRepository.findBy({
+            created_by: userId
+        });
+    }
+
+    createTinyUrl(createUrlData: CreateUrlServiceDto) {
         return this.urlRepository.save(createUrlData);
     }
 }
