@@ -2,7 +2,7 @@ import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from
 import { ZodSchema } from 'zod';
 
 @Injectable()
-export class ZodValidationPipePipe implements PipeTransform {
+export class ZodValidationPipe implements PipeTransform {
   constructor(private schema: ZodSchema) { }
   transform(value: unknown, metadata: ArgumentMetadata) {
     try {
