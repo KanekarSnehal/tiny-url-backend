@@ -14,7 +14,11 @@ export class UrlController {
     async getListOfTinyUrlByUserId() {
         try {
             const userId = 1;
-            return this.urlService.getListOfTinyUrlByUserId(userId);
+            const response = await this.urlService.getListOfTinyUrlByUserId(userId);
+            return {
+                status: 'success',
+                data: response
+            }
         } catch(error) {
             throw error;
         }
