@@ -3,8 +3,8 @@ import { z } from 'zod';
 export const createUrlZObject = z
   .object({
     long_url: z.string().url({ message: 'Invalid Url'}),
-    title: z.string(),
-    custom_back_half: z.string(),
+    title: z.string().nullable(),
+    custom_back_half: z.string().nullable(),
     generate_qr: z.coerce.boolean(),
     id: z.string(),
     created_by: z.number(),
@@ -22,7 +22,7 @@ export type CreateUrlServiceDto = z.infer<typeof createUrlServiceSchema>;
 
 export const updateUrlZObject = z
   .object({
-    title: z.string(),
+    title: z.string().nullable(),
     custom_back_half: z.string(),
     id: z.string(),
   }).partial();
