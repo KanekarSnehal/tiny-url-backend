@@ -12,8 +12,13 @@ export class UrlService {
     ) { }
 
     getListOfTinyUrlByUserId(userId: number) {
-        return this.urlRepository.findBy({
-            created_by: userId
+        return this.urlRepository.find({
+            where: {
+                created_by: userId
+            },
+            order: {
+                created_at: 'DESC'
+            }
         });
     }
 
