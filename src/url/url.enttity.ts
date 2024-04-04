@@ -27,6 +27,9 @@ export class Url {
     @Column({ type: 'varchar', nullable: true, default: null })
     custom_domain: string | null;
 
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    created_at: string
+
     @ManyToOne(() => User)
     @JoinColumn({ name: 'created_by' })
     public creater: User;
