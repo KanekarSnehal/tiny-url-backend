@@ -43,4 +43,13 @@ export class UrlService {
     deleteTinyUrlByUrlId(urlId: string) {
         return this.urlRepository.delete(urlId);
     }
+
+    isCustomBackHalfExist(customBackHalf: string) {
+        return this.urlRepository.findOne({
+            where: [
+                { custom_back_half: customBackHalf },
+                { id: customBackHalf }
+            ]
+        });
+    }
 }
