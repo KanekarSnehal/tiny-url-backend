@@ -7,6 +7,8 @@ import { UserModule } from './user/user.module';
 import { Url } from './url/url.enttity';
 import { User } from './user/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -23,7 +25,9 @@ import { AuthModule } from './auth/auth.module';
         password: configService.get('MYSQL_PASS'),
         database: configService.get('MYSQL_DB'),
         entities: [Url, User],
-        synchronize: true,
+        synchronize: false,
+        logging: true,
+        logger: 'advanced-console',
       }),
       inject: [ConfigService]
     }),
@@ -32,6 +36,12 @@ import { AuthModule } from './auth/auth.module';
     AuthModule
   ],
   controllers: [],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard
+    }
+  ],
 })
 export class AppModule { }
