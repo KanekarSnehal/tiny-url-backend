@@ -13,7 +13,7 @@ export class UserService {
         return this.userRepository.findOneBy({ email });
     }
 
-    createUser(userDetails) {
-        return this.userRepository.create(userDetails);
+    createUser(userDetails: Partial<User>) {
+        return this.userRepository.save(userDetails);
     }
 }
