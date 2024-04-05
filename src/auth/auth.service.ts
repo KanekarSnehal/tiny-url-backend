@@ -2,7 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
-const bcrypt = require('bcrypt');
+import * as bcrypt from 'bcrypt';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -32,21 +33,24 @@ export class AuthService {
         }
     }
 
-    async signup(email: string, password: string, name: string) {
+    async signup(email: string, password: string, name: string): Promise<User> {
         try {
             const userDetails = await this.userService.findUserByEmail(email);
 
             if (userDetails) {
                 throw new Error('User with this email already exists');
             }
-            const hashedPassword = await bcrypt.hash(password, this.configService.get('SALT'));
+            const salt = await bcrypt.genSalt(parseInt(this.configService.get('SALT')));
+            const hashedPassword = await bcrypt.hash(password, salt);
 
             // create user
-            await this.userService.createUser({
+            const response = await this.userService.createUser({
                 email,
                 password: hashedPassword,
                 name
             });
+
+            return response;
 
         } catch(error) {
             throw error;
