@@ -24,9 +24,11 @@ export class UrlService {
 
     getDetailsOfTinyUrlByUrlId(urlId: string) {
         return this.urlRepository.findOne({
-            where: {
-                id: urlId
-            }
+            where: [
+                { id: urlId },
+                { custom_back_half: urlId }
+            ],
+            select: ['id', 'long_url']
         });
     }
 
