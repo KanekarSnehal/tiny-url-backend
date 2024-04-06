@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Ip, Param, Post, Put, Res, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
-import { CreateUrlDto, UpdateUrlDto, createUrlPayloadSchema, updateUrlPayloadSchema } from './url.schema';
+import { CreateUrlDto, UpdateUrlPayloadDto, createUrlPayloadSchema, updateUrlPayloadSchema } from './url.schema';
 import { UrlService } from './url.service';
 import { generateUniqueHash } from '../utils/generateUniqueHash';
 import { ConfigService } from '@nestjs/config';
@@ -62,7 +62,7 @@ export class UrlController {
             const hash = generateUniqueHash(ipAddress);
 
             // generate short url
-            const shortUrl = `${this.configService.get('BACKEND_URL')}/${hash}`
+            const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : hash}`
 
             // generate qr if generate_qr is true
             if (generate_qr) {
@@ -82,10 +82,18 @@ export class UrlController {
 
     @Put()
     @UsePipes(new ZodValidationPipe(updateUrlPayloadSchema))
-    async updateTinyUrlDetails(@Body() updateUrlDto: UpdateUrlDto) {
+    async updateTinyUrlDetails(@Body() updateUrlDto: UpdateUrlPayloadDto) {
         try {
             const { id, custom_back_half, title } = updateUrlDto;
-            this.urlService.updateTinyUrlDetails(id, { custom_back_half, title });
+            await this.urlService.updateTinyUrlDetails(id, { custom_back_half, title });
+            
+            const isQrCodeExist = await this.urlService.getDetailsOfTinyUrlByUrlId(custom_back_half ? custom_back_half : id);
+
+            if (isQrCodeExist && isQrCodeExist.qr_code) {
+                const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : id}`;
+                const qrCode = await QRCode.toDataURL(shortUrl, { type: 'image/jpeg' });
+                await this.urlService.updateTinyUrlDetails(id, { qr_code: qrCode });
+            }
             return {
                 status: 'success',
                 message: 'Tiny url details updated successfully'
@@ -98,7 +106,7 @@ export class UrlController {
     @Delete(':id')
     async deleteTinyUrlByUrlId(@Param('id') id: string) {
         try {
-            this.urlService.deleteTinyUrlByUrlId(id);
+            await this.urlService.deleteTinyUrlByUrlId(id);
             return {
                 status: 'success',
                 message: 'Tiny url deleted successfully'
