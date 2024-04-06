@@ -19,9 +19,6 @@ export class Url {
     custom_back_half: string | null;
 
     @Column({ type: 'text', nullable: true })
-    qr_code: string;
-
-    @Column({ type: 'text', nullable: true })
     title: string;
 
     @Column({ type: 'varchar', nullable: true, default: null })
