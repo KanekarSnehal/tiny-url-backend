@@ -28,7 +28,7 @@ export class UrlService {
                 { id: urlId },
                 { custom_back_half: urlId }
             ],
-            select: ['id', 'long_url', 'qr_code']
+            select: ['id', 'long_url']
         });
     }
 
