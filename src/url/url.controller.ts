@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Url } from './url.enttity';
 const QRCode = require('qrcode');
 import { Response } from 'express';
+import { AllowUnauthorizedRequest } from 'src/utils/allowUnauthorizedRequest';
 
 @Controller('url')
 export class UrlController {
@@ -27,6 +28,7 @@ export class UrlController {
     }
 
     @Get(':id')
+    @AllowUnauthorizedRequest()
     async getDetailsOfTinyUrlByUrlId(@Param() params: { id: string }, @Res() res: Response) {
         try {
             const urlId = params.id;
@@ -50,7 +52,7 @@ export class UrlController {
             let qrCode = null;
 
             // check if custom_back_half is already present either as custom_back_half or hash
-            const isCustomBackHalfExist = await this.urlService.isCustomBackHalfExist(custom_back_half);
+            const isCustomBackHalfExist = custom_back_half ? await this.urlService.isCustomBackHalfExist(custom_back_half) : false;
 
             if (isCustomBackHalfExist) {
                 throw Error('Custom back half already exist');
@@ -68,7 +70,7 @@ export class UrlController {
             }
 
             // store in db
-            this.urlService.createTinyUrl({ ...createUrlDto, id: hash, created_by: userId, qr_code: qrCode });
+            await this.urlService.createTinyUrl({ ...createUrlDto, id: hash, created_by: userId, qr_code: qrCode });
             return {
                 status: 'success',
                 message: 'Tiny url created successfully'

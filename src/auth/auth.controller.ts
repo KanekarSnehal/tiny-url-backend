@@ -3,8 +3,7 @@ import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.p
 import { LoginDto, SignupDto, loginPayloadSchema, signupPayloadSchema } from './auth.schema';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { SetMetadata } from '@nestjs/common';
-const AllowUnauthorizedRequest = () => SetMetadata('allowUnauthorizedRequest', true);
+import { AllowUnauthorizedRequest } from 'src/utils/allowUnauthorizedRequest';
 
 @Controller('auth')
 export class AuthController {
