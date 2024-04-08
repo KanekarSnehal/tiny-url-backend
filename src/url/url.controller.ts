@@ -28,9 +28,29 @@ export class UrlController {
         }
     }
 
+    @Get('/:id/details')
+    async getDetailsOfTinyUrlByUrlId(@Param('id') id: string) {
+        try {
+            const response: Url & { qr_code?: string } = await this.urlService.getDetailsOfTinyUrlByUrlId(id);
+
+            const qrCode = await this.qrCodeService.getQrCodeByUrlId(id);
+
+            if (qrCode && qrCode.content) {
+                response.qr_code = qrCode.content;
+            }
+
+            return {
+                status: 'success',
+                data: response
+            }
+        } catch (error) {
+            throw new BadRequestException(error.message);
+        }
+    }
+
     @Get(':id')
     @AllowUnauthorizedRequest()
-    async getDetailsOfTinyUrlByUrlId(@Param() params: { id: string }, @Res() res: Response) {
+    async redirectTinyUrlByUrlId(@Param() params: { id: string }, @Res() res: Response) {
         try {
             const urlId = params.id;
             const response: Partial<Url> = await this.urlService.getDetailsOfTinyUrlByUrlId(urlId);
@@ -63,7 +83,7 @@ export class UrlController {
             const hash = generateUniqueHash(ipAddress);
 
             // generate short url
-            const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : hash}`
+            const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : hash}?r=qr`
 
             // create tiny url
             await this.urlService.createTinyUrl({ ...createUrlDto, id: hash, created_by: userId });
@@ -97,7 +117,7 @@ export class UrlController {
             const isQrCodeExist = await this.qrCodeService.getQrCodeByUrlId(id);
 
             if (isQrCodeExist && isQrCodeExist.content) {
-                const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : id}`;
+                const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : id}?r=qr`;
                 const qrCode = await QRCode.toDataURL(shortUrl, { type: 'image/jpeg' });
                 await this.qrCodeService.updateQrCodeDetails(isQrCodeExist.id, { content: qrCode });
             }
