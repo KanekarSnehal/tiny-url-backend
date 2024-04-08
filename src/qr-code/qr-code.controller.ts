@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param } from '@nestjs/common';
 import { QrCodeService } from './qr-code.service';
 import { UrlService } from 'src/url/url.service';
 
@@ -35,6 +35,31 @@ export class QrCodeController {
             return {
                 status: 'success',
                 data: response
+            }
+        } catch (error) {
+            throw new BadRequestException(error.message);
+        }
+    }
+
+    @Get(':id/details')
+    async getQrCodeDetailsById(@Param('id') qrCodeId: string) {
+        try {
+            const qrCode = await this.qrCodeService.getQrCodeById(qrCodeId);
+
+            const url = await this.urlService.getDetailsOfTinyUrlByUrlId(qrCode.url_id);
+
+            return {
+                status: 'success',
+                data: {
+                    id: qrCode.id,
+                    url_id: qrCode.url_id,
+                    long_url: url.long_url,
+                    qr_code: qrCode.content,
+                    title: url.title,
+                    created_at: qrCode.created_at,
+                    created_by: qrCode.created_by,
+                    custom_back_half: url.custom_back_half
+                }
             }
         } catch (error) {
             throw new BadRequestException(error.message);

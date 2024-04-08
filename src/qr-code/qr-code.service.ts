@@ -34,7 +34,15 @@ export class QrCodeService {
         });
     }
 
-    updateQrCodeDetails(id: number, updateQrCodeData: UpdateQrCodeServiceDto) {
+    updateQrCodeDetails(id: string, updateQrCodeData: UpdateQrCodeServiceDto) {
         return this.qrCodeRepository.update(id, updateQrCodeData);
+    }
+
+    getQrCodeById(qrCodeId: string) {
+        return this.qrCodeRepository.findOne({
+            where: {
+                id: qrCodeId
+            }
+        });
     }
 }
