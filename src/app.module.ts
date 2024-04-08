@@ -11,6 +11,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { QrCodeModule } from './qr-code/qr-code.module';
 import { QrCode } from './qr-code/qr-code.enitity';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { Analytics } from './analytics/analytics.entity';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { QrCode } from './qr-code/qr-code.enitity';
         username: configService.get('MYSQL_USER'),
         password: configService.get('MYSQL_PASS'),
         database: configService.get('MYSQL_DB'),
-        entities: [Url, User, QrCode],
+        entities: [Url, User, QrCode, Analytics],
         synchronize: true,
         logging: true,
         logger: 'advanced-console',
@@ -36,7 +38,8 @@ import { QrCode } from './qr-code/qr-code.enitity';
     UrlModule,
     UserModule,
     AuthModule,
-    QrCodeModule
+    QrCodeModule,
+    AnalyticsModule
   ],
   controllers: [],
   providers: [
