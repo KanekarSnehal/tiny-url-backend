@@ -28,7 +28,7 @@ export class UrlService {
                 { id: urlId },
                 { custom_back_half: urlId }
             ],
-            select: ['id', 'long_url']
+            select: ['id', 'long_url', 'title', 'created_at', 'created_by', 'custom_back_half', 'custom_domain']
         });
     }
 
