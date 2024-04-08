@@ -4,8 +4,8 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn
 
 @Entity()
 export class QrCode {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn("uuid")
+    id: string;
 
     @Column()
     public url_id: string;
@@ -26,7 +26,7 @@ export class QrCode {
     @JoinColumn({ name: 'created_by' })
     public creater: User;
 
-    @OneToOne(() => Url)
+    @OneToOne(() => Url, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'url_id' })
     public url: Url;
 }
