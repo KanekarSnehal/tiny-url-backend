@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Ip, Param, Post, Put, Res, UsePipes } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Ip, Param, Post, Put, Query, Req, Res, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
 import { CreateUrlDto, UpdateUrlPayloadDto, createUrlPayloadSchema, updateUrlPayloadSchema } from './url.schema';
 import { UrlService } from './url.service';
@@ -9,10 +9,13 @@ const QRCode = require('qrcode');
 import { Response } from 'express';
 import { AllowUnauthorizedRequest } from 'src/utils/allowUnauthorizedRequest';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { Request } from 'express';
+import DeviceDetector = require("device-detector-js");
+import { AnalyticsService } from 'src/analytics/analytics.service';
 
 @Controller('url')
 export class UrlController {
-    constructor(private urlService: UrlService, private configService: ConfigService, private qrCodeService: QrCodeService) { }
+    constructor(private urlService: UrlService, private configService: ConfigService, private qrCodeService: QrCodeService, private analyticsService: AnalyticsService) { }
 
     @Get()
     async getListOfTinyUrlByUserId() {
@@ -50,13 +53,44 @@ export class UrlController {
 
     @Get(':id')
     @AllowUnauthorizedRequest()
-    async redirectTinyUrlByUrlId(@Param() params: { id: string }, @Res() res: Response) {
+    async redirectTinyUrlByUrlId(@Param() params: { id: string }, @Query('r') redirect: string, @Res() res: Response, @Ip() ipAddress: string, @Req() req: Request) {
         try {
             const urlId = params.id;
-            const response: Partial<Url> = await this.urlService.getDetailsOfTinyUrlByUrlId(urlId);
-            if (response && response.long_url) {
-                return res.redirect(HttpStatus.MOVED_PERMANENTLY, response.long_url);
+
+            const urlResponse: Partial<Url> = await this.urlService.getDetailsOfTinyUrlByUrlId(urlId);
+
+            // if redirect is qr then get qr code details
+            const qrCode = redirect == 'qr' ? await this.qrCodeService.getQrCodeByUrlId(urlId) : null;
+            
+            // get device details
+            const userAgent = req.headers['user-agent'];
+            const deviceDetector = new DeviceDetector();
+            const deviceDetails = deviceDetector.parse(userAgent);
+            const { os, client, device } = deviceDetails;
+            
+            // get country and city details
+            const geoPlugin = await fetch(`http://www.geoplugin.net/json.gp?ip=${ipAddress}`);
+            const geoPluginResponse = await geoPlugin.json();
+            const { geoplugin_countryName: country, geoplugin_city: city } = geoPluginResponse;
+
+            const analyticsData = {
+                analytical_type: redirect == 'qr' ? 'qr' : 'url',
+                url_id: urlId,
+                qr_code_id: redirect == 'qr' ? qrCode.id : null,
+                country,
+                city,
+                device_type: device.type,
+                browser: client.name,
+                os: os.name
+            };
+
+            // store analytics data
+            await this.analyticsService.createAnalyticsData(analyticsData);
+            
+            if (urlResponse && urlResponse.long_url) {
+                return res.redirect(HttpStatus.MOVED_PERMANENTLY, urlResponse.long_url);
             }
+
             res.status(HttpStatus.NOT_FOUND).sendFile('urlNotFound.html', { root: './src/static' });
 
         } catch (error) {
