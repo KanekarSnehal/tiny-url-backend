@@ -42,9 +42,52 @@ export class UrlController {
                 response.qr_code = qrCode.content;
             }
 
+            const analytics = await this.analyticsService.getAnalyticsDataByTinyUrlId(id);
+
+            // engagment over time
+            const engagementOverTime = analytics.reduce((acc, curr) => {
+                const date = new Date(curr.created_at).toDateString();
+                const index = acc.findIndex(item => item.date === date);
+                if (index !== -1) {
+                    acc[index].clicks += 1;
+                } else {
+                    acc.push({ date, clicks: 1 });
+                }
+                return acc;
+            }, []);
+
+            // locations data
+            const locations = analytics.reduce((acc, curr) => {
+                const { country, city } = curr;
+                const index = acc.findIndex(item => item.country === country && item.city === city);
+                if (index !== -1) {
+                    acc[index].clicks += 1;
+                } else {
+                    acc.push({ country, city, clicks: 1 });
+                }
+                return acc;
+            }, []);
+
+            // device data
+            const deviceData = analytics.reduce((acc, curr) => {
+                const { device_type, browser, os } = curr;
+                const index = acc.findIndex(item => item.device_type === device_type && item.browser === browser && item.os === os);
+                if (index !== -1) {
+                    acc[index].clicks += 1;
+                } else {
+                    acc.push({ device_type, browser, os, clicks: 1 });
+                }
+                return acc;
+            }, []);
+
             return {
                 status: 'success',
-                data: response
+                data: {
+                    ...response,
+                    engagement_over_time: engagementOverTime,
+                    locations,
+                    device_data: deviceData
+                }
             }
         } catch (error) {
             throw new BadRequestException(error.message);

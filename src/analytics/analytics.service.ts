@@ -13,4 +13,8 @@ export class AnalyticsService {
         analyticsData = Array.isArray(analyticsData) ? analyticsData : [analyticsData];
         return this.analyticsRepository.save(analyticsData);
     }
+
+    getAnalyticsDataByTinyUrlId(tinyUrlId: string) {
+        return this.analyticsRepository.find({ where: { url_id: tinyUrlId } });
+    }
 }
