@@ -17,4 +17,8 @@ export class AnalyticsService {
     getAnalyticsDataByTinyUrlId(tinyUrlId: string) {
         return this.analyticsRepository.find({ where: { url_id: tinyUrlId } });
     }
+
+    getAnalyticsDataByQrCodeId(qrCodeId: string) {
+        return this.analyticsRepository.find({ where: { qr_code_id: qrCodeId } });
+    }
 }

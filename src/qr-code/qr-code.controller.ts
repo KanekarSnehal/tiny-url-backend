@@ -1,10 +1,11 @@
 import { BadRequestException, Controller, Get, Param } from '@nestjs/common';
 import { QrCodeService } from './qr-code.service';
 import { UrlService } from 'src/url/url.service';
+import { AnalyticsService } from 'src/analytics/analytics.service';
 
 @Controller('qr-code')
 export class QrCodeController {
-    constructor(private qrCodeService: QrCodeService, private urlService: UrlService) {}
+    constructor(private qrCodeService: QrCodeService, private urlService: UrlService, private analyticsService: AnalyticsService) {}
 
     @Get()
     async getListOfQrCodeByUserId() {
@@ -48,6 +49,45 @@ export class QrCodeController {
 
             const url = await this.urlService.getDetailsOfTinyUrlByUrlId(qrCode.url_id);
 
+            const analytics = await this.analyticsService.getAnalyticsDataByQrCodeId(qrCodeId);
+
+            // engagment over time
+            const engagementOverTime = analytics.reduce((acc, curr) => {
+                const date = new Date(curr.created_at).toDateString();
+                const index = acc.findIndex(item => item.date === date);
+                if (index !== -1) {
+                    acc[index].clicks += 1;
+                } else {
+                    acc.push({ date, clicks: 1 });
+                }
+                return acc;
+            }, []);
+
+            // locations data
+            const locations = analytics.reduce((acc, curr) => {
+                const { country, city } = curr;
+                const index = acc.findIndex(item => item.country === country && item.city === city);
+                if (index !== -1) {
+                    acc[index].clicks += 1;
+                } else {
+                    acc.push({ country, city, clicks: 1 });
+                }
+                return acc;
+            }, []);
+
+
+            // device data
+            const deviceData = analytics.reduce((acc, curr) => {
+                const { device_type, browser, os } = curr;
+                const index = acc.findIndex(item => item.device_type === device_type && item.browser === browser && item.os === os);
+                if (index !== -1) {
+                    acc[index].clicks += 1;
+                } else {
+                    acc.push({ device_type, browser, os, clicks: 1 });
+                }
+                return acc;
+            }, []);
+
             return {
                 status: 'success',
                 data: {
@@ -58,7 +98,10 @@ export class QrCodeController {
                     title: url.title,
                     created_at: qrCode.created_at,
                     created_by: qrCode.created_by,
-                    custom_back_half: url.custom_back_half
+                    custom_back_half: url.custom_back_half,
+                    engagement_over_time: engagementOverTime,
+                    locations,
+                    device_data: deviceData
                 }
             }
         } catch (error) {
