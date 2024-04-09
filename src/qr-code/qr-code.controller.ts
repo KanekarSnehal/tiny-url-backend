@@ -1,16 +1,18 @@
-import { BadRequestException, Controller, Get, Param } from '@nestjs/common';
+import { BadRequestException, Controller, ExecutionContext, Get, Param, Req } from '@nestjs/common';
 import { QrCodeService } from './qr-code.service';
 import { UrlService } from 'src/url/url.service';
 import { AnalyticsService } from 'src/analytics/analytics.service';
+import { Request } from 'express';
+import { User } from 'src/user/user.entity';
 
 @Controller('qr-code')
 export class QrCodeController {
     constructor(private qrCodeService: QrCodeService, private urlService: UrlService, private analyticsService: AnalyticsService) {}
 
     @Get()
-    async getListOfQrCodeByUserId() {
+    async getListOfQrCodeByUserId(@Req() req: Request & { user: Partial<User> }) {
         try {
-            const userId = 1;
+            const userId = req.user.id;
             const qrCodes = await this.qrCodeService.getListOfQrCodeByUserId(userId);
 
             // get all the urls

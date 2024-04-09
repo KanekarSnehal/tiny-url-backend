@@ -12,15 +12,16 @@ import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { Request } from 'express';
 import DeviceDetector = require("device-detector-js");
 import { AnalyticsService } from 'src/analytics/analytics.service';
+import { User } from 'src/user/user.entity';
 
 @Controller('url')
 export class UrlController {
     constructor(private urlService: UrlService, private configService: ConfigService, private qrCodeService: QrCodeService, private analyticsService: AnalyticsService) { }
 
     @Get()
-    async getListOfTinyUrlByUserId() {
+    async getListOfTinyUrlByUserId(@Req() req: Request & { user: Partial<User> }) {
         try {
-            const userId = 1;
+            const userId = req.user.id;
             const response = await this.urlService.getListOfTinyUrlByUserId(userId);
             return {
                 status: 'success',
@@ -143,10 +144,10 @@ export class UrlController {
 
     @Post()
     @UsePipes(new ZodValidationPipe(createUrlPayloadSchema))
-    async createTinyUrl(@Body() createUrlDto: CreateUrlDto, @Ip() ipAddress: string) {
+    async createTinyUrl(@Body() createUrlDto: CreateUrlDto, @Ip() ipAddress: string, @Req() req: Request & { user: Partial<User> }) {
         try {
             const { generate_qr, custom_back_half } = createUrlDto;
-            const userId = 1;
+            const userId = req.user.id;
             let qrCode = null;
 
             // check if custom_back_half is already present either as custom_back_half or hash
