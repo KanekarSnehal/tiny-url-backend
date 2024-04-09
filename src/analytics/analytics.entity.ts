@@ -16,19 +16,19 @@ export class Analytics {
     @Column({ nullable: true })
     qr_code_id: string;
 
-    @Column()
+    @Column({ nullable: true })
     country: string;
 
-    @Column()
+    @Column({ nullable: true })
     city: string;
 
-    @Column()
+    @Column({ nullable: true })
     device_type: string;
 
-    @Column()
+    @Column({ nullable: true })
     browser: string;
 
-    @Column()
+    @Column({ nullable: true })
     os: string;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
