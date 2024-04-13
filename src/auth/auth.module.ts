@@ -6,12 +6,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, UserService, JwtService, ConfigService],
-  imports: [TypeOrmModule.forFeature([User])],
-  exports: [JwtService]
+  imports: [TypeOrmModule.forFeature([User]), CacheModule.register()],
+  exports: [JwtService, CacheModule.register()]
 
 })
 export class AuthModule {}

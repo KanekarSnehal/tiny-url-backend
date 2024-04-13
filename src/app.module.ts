@@ -13,6 +13,7 @@ import { QrCodeModule } from './qr-code/qr-code.module';
 import { QrCode } from './qr-code/qr-code.enitity';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { Analytics } from './analytics/analytics.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { Analytics } from './analytics/analytics.entity';
       envFilePath: ['.env.local', '.env.development', '.env'],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, CacheModule.register()],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
         host: configService.get('MYSQL_HOST'),
