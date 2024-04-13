@@ -1,13 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/user.entity';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
-    constructor(private jwtService: JwtService, private userService: UserService, private configService: ConfigService) { }
+    constructor(private jwtService: JwtService, private userService: UserService, private configService: ConfigService, @Inject(CACHE_MANAGER) private cacheManager: Cache) { }
 
     async login(email: string, password: string) {
         try {
@@ -53,6 +55,15 @@ export class AuthService {
             return response;
 
         } catch(error) {
+            throw error;
+        }
+    }
+
+    async logout(id: number, token: string) {
+        try {
+            await this.cacheManager.set(token, `${id}`, this.configService.get('JWT_TOKEN_EXPIRY'));
+            return true;
+        } catch (error) {
             throw error;
         }
     }

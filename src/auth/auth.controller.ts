@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Res, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
 import { LoginDto, SignupDto, loginPayloadSchema, signupPayloadSchema } from './auth.schema';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AllowUnauthorizedRequest } from 'src/utils/allowUnauthorizedRequest';
+import { User } from 'src/user/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -51,6 +52,24 @@ export class AuthController {
                     email: response.email,
                     name: response.name
                 }
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    @Post('logout')
+    async logout(@Res() response: Response, @Req() req: Request & { user: Partial<User> }) {
+        try {
+            const userId = req.user.id;
+            // set token in cache
+            const token = req.headers['authorization'];
+    
+            await this.authervice.logout(userId, token);
+    
+            return {
+                status: "success",
+                message: 'User logged out successfully'
             }
         } catch (error) {
             throw error;
