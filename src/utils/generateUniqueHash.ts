@@ -1,5 +1,5 @@
 // Function to generate a unique string using IP address and timestamp
-function generateUniqueString(ipAddress) {
+function generateUniqueString(ipAddress: string) {
     const timestamp = Date.now().toString();
     return ipAddress + timestamp;
   }
@@ -20,7 +20,7 @@ function generateUniqueString(ipAddress) {
   }
   
   
-  function crc32Hash(data) {
+  function crc32Hash(data: string) {
       let crc = 0xFFFFFFFF;
       for (let i = 0; i < data.length; i++) {
           let byte = data.charCodeAt(i);
@@ -34,7 +34,7 @@ function generateUniqueString(ipAddress) {
   }
   
   // Function to generate a short URL
-  export function generateUniqueHash(ipAddress) {
+  export function generateUniqueHash(ipAddress: string) {
     const uniqueString = generateUniqueString(ipAddress); // Generate a unique string using IP address and timestamp
     const md5Hash = crc32Hash(uniqueString); // Generate MD5 hash
     const base62Hash = hexToBase62(md5Hash); // Convert MD5 hash to Base62
