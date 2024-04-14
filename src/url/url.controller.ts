@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Ip, Param, Post, Put, Query, Req, Res, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
-import { CreateUrlDto, UpdateUrlPayloadDto, createUrlPayloadSchema, updateUrlPayloadSchema } from './url.schema';
+import { CreateUrlDto, UpdateUrlPayloadDto, createUrlPayloadSchema, updateUrlZObject } from './url.schema';
 import { UrlService } from './url.service';
 import { generateUniqueHash } from '../utils/generateUniqueHash';
 import { ConfigService } from '@nestjs/config';
@@ -185,17 +185,18 @@ export class UrlController {
         }
     }
 
-    @Put()
-    @UsePipes(new ZodValidationPipe(updateUrlPayloadSchema))
-    async updateTinyUrlDetails(@Body() updateUrlDto: UpdateUrlPayloadDto, @Param('id') id: string) {
+    @Put(':id')
+    @UsePipes(new ZodValidationPipe(updateUrlZObject))
+    async updateTinyUrlDetails(@Param() params: { id: string }, @Body() updateUrlDto: UpdateUrlPayloadDto) {
         try {
+            const urlId = params.id;
             const { custom_back_half, title } = updateUrlDto;
-            await this.urlService.updateTinyUrlDetails(id, { custom_back_half, title });
+            await this.urlService.updateTinyUrlDetails(urlId, { custom_back_half, title });
             
-            const isQrCodeExist = await this.qrCodeService.getQrCodeByUrlId(id);
+            const isQrCodeExist = await this.qrCodeService.getQrCodeByUrlId(urlId);
 
             if (isQrCodeExist && isQrCodeExist.content) {
-                const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : id}?r=qr`;
+                const shortUrl = `${this.configService.get('BACKEND_URL')}/${custom_back_half ? custom_back_half : urlId}?r=qr`;
                 const qrCode = await QRCode.toDataURL(shortUrl, { type: 'image/jpeg' });
                 await this.qrCodeService.updateQrCodeDetails(isQrCodeExist.id, { content: qrCode });
             }

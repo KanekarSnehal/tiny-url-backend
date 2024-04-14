@@ -24,14 +24,15 @@ export const updateUrlZObject = z
   .object({
     title: z.string().nullable(),
     custom_back_half: z.string(),
-    qr_code: z.string()
+    qr_code: z.string(),
+    id: z.string()
   }).partial();
 
 export const updateUrlPayloadSchema = updateUrlZObject.extend({
   id: z.string()
 }).required({ id: true });
 
-export type UpdateUrlPayloadDto = z.infer<typeof updateUrlPayloadSchema>;
+export type UpdateUrlPayloadDto = z.infer<typeof updateUrlZObject>;
 
 export type UpdateUrlDto = z.infer<typeof updateUrlZObject>;
 
