@@ -187,9 +187,9 @@ export class UrlController {
 
     @Put()
     @UsePipes(new ZodValidationPipe(updateUrlPayloadSchema))
-    async updateTinyUrlDetails(@Body() updateUrlDto: UpdateUrlPayloadDto) {
+    async updateTinyUrlDetails(@Body() updateUrlDto: UpdateUrlPayloadDto, @Param('id') id: string) {
         try {
-            const { id, custom_back_half, title } = updateUrlDto;
+            const { custom_back_half, title } = updateUrlDto;
             await this.urlService.updateTinyUrlDetails(id, { custom_back_half, title });
             
             const isQrCodeExist = await this.qrCodeService.getQrCodeByUrlId(id);
