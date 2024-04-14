@@ -16,4 +16,13 @@ export class UserService {
     createUser(userDetails: Partial<User>) {
         return this.userRepository.save(userDetails);
     }
+    
+    getUserDetails(userId: number) {
+        return this.userRepository.findOne({
+            where: {
+                id: userId
+            },
+            select: ['id', 'email', 'name', 'profile_image']
+        });
+    }
 }
