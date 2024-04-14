@@ -4,6 +4,7 @@ import { UrlService } from 'src/url/url.service';
 import { AnalyticsService } from 'src/analytics/analytics.service';
 import { Request } from 'express';
 import { User } from 'src/user/user.entity';
+import { getAnalyticsData } from 'src/utils/getAnalyticsData';
 
 @Controller('qr-code')
 export class QrCodeController {
@@ -53,43 +54,8 @@ export class QrCodeController {
 
             const analytics = await this.analyticsService.getAnalyticsDataByQrCodeId(qrCodeId);
 
-            // engagment over time
-            const engagementOverTime = analytics.reduce((acc, curr) => {
-                const date = new Date(curr.created_at).toDateString();
-                const index = acc.findIndex(item => item.date === date);
-                if (index !== -1) {
-                    acc[index].clicks += 1;
-                } else {
-                    acc.push({ date, clicks: 1 });
-                }
-                return acc;
-            }, []);
-
-            // locations data
-            const locations = analytics.reduce((acc, curr) => {
-                const { country, city } = curr;
-                const index = acc.findIndex(item => item.country === country && item.city === city);
-                if (index !== -1) {
-                    acc[index].clicks += 1;
-                } else {
-                    acc.push({ country, city, clicks: 1 });
-                }
-                return acc;
-            }, []);
-
-
-            // device data
-            const deviceData = analytics.reduce((acc, curr) => {
-                const { device_type, browser, os } = curr;
-                const index = acc.findIndex(item => item.device_type === device_type && item.browser === browser && item.os === os);
-                if (index !== -1) {
-                    acc[index].clicks += 1;
-                } else {
-                    acc.push({ device_type, browser, os, clicks: 1 });
-                }
-                return acc;
-            }, []);
-
+            const { engagementOverTime, locations, deviceData } = getAnalyticsData(analytics);
+            
             return {
                 status: 'success',
                 data: {
