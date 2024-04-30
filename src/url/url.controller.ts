@@ -14,6 +14,7 @@ import DeviceDetector = require("device-detector-js");
 import { AnalyticsService } from 'src/analytics/analytics.service';
 import { User } from 'src/user/user.entity';
 import { getAnalyticsData } from 'src/utils/getAnalyticsData';
+import fetch from 'node-fetch';
 
 @Controller('url')
 export class UrlController {
@@ -86,7 +87,7 @@ export class UrlController {
 
             const analyticsData = {
                 analytical_type: redirect == 'qr' ? 'qr' : 'url',
-                url_id: urlId,
+                url_id: urlResponse.id,
                 qr_code_id: redirect == 'qr' ? qrCode.id : null,
                 country,
                 city,
