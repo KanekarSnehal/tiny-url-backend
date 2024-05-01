@@ -137,11 +137,9 @@ export class UrlController {
             // generate qr if generate_qr is true
             if (generate_qr) {
                 qrCode = await QRCode.toDataURL(shortUrl, { type: 'image/jpeg' });
+                // generate qr code
+                await this.qrCodeService.createQrCode({ url_id: hash, content: qrCode, created_by: userId });
             }
-
-            // generate qr code
-            await this.qrCodeService.createQrCode({ url_id: hash, content: qrCode, created_by: userId });
-            
 
             // store in db
             return {
