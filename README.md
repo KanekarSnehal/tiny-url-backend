@@ -23,19 +23,13 @@ $ npm start
 ```
 
 ### Using Docker
-- Make sure you have Docker installed on your system.
-- Clone the repository:
+- To run the application using Docker, you can pull the Docker image from Docker Hub:
 ```bash
-$ git clone https://github.com/KanekarSnehal/tiny-url-backend.git
-$ cd tiny-url-backend
-```
-- Build the Docker image:
-```bash
-$ docker build -t tiny-url-backend .
+$ docker pull backenddev99/tinyurl-backend:1.0.0
 ```
 - Run the Docker container:
 ```bash
-$ docker run -d -p 3000:3000 tiny-url-backend
+$ docker run -d -p 3000:3000 backenddev99/tinyurl-backend:1.0.0
 ```
 This will start the Tiny URL backend server in a Docker container, accessible at http://localhost:3000
 
