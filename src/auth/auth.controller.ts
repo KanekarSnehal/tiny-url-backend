@@ -59,7 +59,7 @@ export class AuthController {
     }
 
     @Post('logout')
-    async logout(@Res() response: Response, @Req() req: Request & { user: Partial<User> }) {
+    async logout(@Req() req: Request & { user: Partial<User> }) {
         try {
             const userId = req.user.id;
             // set token in cache
