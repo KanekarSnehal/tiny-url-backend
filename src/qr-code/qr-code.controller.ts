@@ -5,13 +5,23 @@ import { AnalyticsService } from 'src/analytics/analytics.service';
 import { Request } from 'express';
 import { User } from 'src/user/user.entity';
 import { getAnalyticsData } from 'src/utils/getAnalyticsData';
+import { DeviceData, EngagementOverTime, GenericResponse, LocationData } from 'src/utils/genericSchema';
+import { Url } from '../url/url.enttity';
+import { QrCode } from './qr-code.enitity';
 
 @Controller('qr-code')
 export class QrCodeController {
     constructor(private qrCodeService: QrCodeService, private urlService: UrlService, private analyticsService: AnalyticsService) {}
 
+    /**
+     * Retrieves a list of QrCodes created by the authenticated user.
+     *
+     * @param {Request & { user: Partial<User> }} req - The request object containing the authenticated user information.
+     * @returns {Promise<GenericResponse<Partial<Url & QrCode>[]>>} An object containing the status and the list of QrCodes.
+     * @throws {BadRequestException} If an error occurs while retrieving the QrCodes.
+     */
     @Get()
-    async getListOfQrCodeByUserId(@Req() req: Request & { user: Partial<User> }) {
+    async getListOfQrCodeByUserId(@Req() req: Request & { user: Partial<User> }): Promise<GenericResponse<Partial<Url & QrCode>[]>> {
         try {
             const userId = req.user.id;
             const qrCodes = await this.qrCodeService.getListOfQrCodeByUserId(userId);
@@ -45,8 +55,15 @@ export class QrCodeController {
         }
     }
 
+    /**
+     * Retrieves details of a QrCode by its ID, including QR code and analytics data.
+     *
+     * @param {string} qrCodeId - The ID of the QrCode.
+     * @throws {BadRequestException} If an error occurs while retrieving the QrCode details.
+     */
     @Get(':id/details')
-    async getQrCodeDetailsById(@Param('id') qrCodeId: string) {
+    async getQrCodeDetailsById(@Param('id') qrCodeId: string): Promise<GenericResponse<Partial<QrCode & Url> & 
+    { qr_code?: string, engagement_over_time?: EngagementOverTime[]; locations?: LocationData[]; device_data?: DeviceData[]; }>> {
         try {
             const qrCode = await this.qrCodeService.getQrCodeById(qrCodeId);
 

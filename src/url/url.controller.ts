@@ -15,13 +15,26 @@ import { AnalyticsService } from 'src/analytics/analytics.service';
 import { User } from 'src/user/user.entity';
 import { getAnalyticsData } from 'src/utils/getAnalyticsData';
 import fetch from 'node-fetch';
+import { GenericResponse, EngagementOverTime, LocationData, DeviceData } from 'src/utils/genericSchema';
+
+interface AuthenticatedRequest extends Request {
+    user: Partial<User>;
+}
+
 
 @Controller('url')
 export class UrlController {
     constructor(private urlService: UrlService, private configService: ConfigService, private qrCodeService: QrCodeService, private analyticsService: AnalyticsService) { }
 
+    /**
+     * Retrieves a list of TinyURLs created by the authenticated user.
+     *
+     * @param {Request & { user: Partial<User> }} req - The request object containing the authenticated user information.
+     * @returns {Promise<GenericResponse<Url[]>>} An object containing the status and the list of TinyURLs.
+     * @throws {BadRequestException} If an error occurs while retrieving the TinyURLs.
+     */
     @Get()
-    async getListOfTinyUrlByUserId(@Req() req: Request & { user: Partial<User> }) {
+    async getListOfTinyUrlByUserId(@Req() req: AuthenticatedRequest): Promise<GenericResponse<Url[]>> {
         try {
             const userId = req.user.id;
             const response = await this.urlService.getListOfTinyUrlByUserId(userId);
@@ -34,16 +47,19 @@ export class UrlController {
         }
     }
 
+    /**
+     * Retrieves details of a TinyURL by its ID, including QR code and analytics data.
+     *
+     * @param {string} id - The ID of the TinyURL.
+     * @throws {BadRequestException} If an error occurs while retrieving the TinyURL details.
+     */
     @Get('/:id/details')
-    async getDetailsOfTinyUrlByUrlId(@Param('id') id: string) {
+    async getDetailsOfTinyUrlByUrlId(@Param('id') id: string): Promise<GenericResponse<Partial<Url> & 
+    { qr_code?: string; engagement_over_time?: EngagementOverTime[]; locations?: LocationData[]; device_data?: DeviceData[]; }>> {
         try {
-            const response: Url & { qr_code?: string } = await this.urlService.getDetailsOfTinyUrlByUrlId(id);
+            const response: Partial<Url> = await this.urlService.getDetailsOfTinyUrlByUrlId(id);
 
             const qrCode = await this.qrCodeService.getQrCodeByUrlId(id);
-
-            if (qrCode && qrCode.content) {
-                response.qr_code = qrCode.content;
-            }
 
             const analytics = await this.analyticsService.getAnalyticsDataByTinyUrlId(id);
 
@@ -53,6 +69,7 @@ export class UrlController {
                 status: 'success',
                 data: {
                     ...response,
+                    qr_code: qrCode.content,
                     engagement_over_time: engagementOverTime,
                     locations,
                     device_data: deviceData
@@ -63,9 +80,20 @@ export class UrlController {
         }
     }
 
+    /**
+     * Redirects to the long URL associated with a TinyURL ID and records analytics data.
+     *
+     * @param {Object} params - The route parameters containing the TinyURL ID.
+     * @param {string} redirect - The query parameter to determine if the redirection is for a QR code.
+     * @param {Response} res - The response object.
+     * @param {string} ipAddress - The IP address of the request.
+     * @param {Request} req - The request object containing headers and other information.
+     * @returns {Promise<void>}
+     * @throws {BadRequestException} If an error occurs during the redirection.
+     */
     @Get(':id')
     @AllowUnauthorizedRequest()
-    async redirectTinyUrlByUrlId(@Param() params: { id: string }, @Query('r') redirect: string, @Res() res: Response, @Ip() ipAddress: string, @Req() req: Request) {
+    async redirectTinyUrlByUrlId(@Param() params: { id: string }, @Query('r') redirect: string, @Res() res: Response, @Ip() ipAddress: string, @Req() req: Request): Promise<void> {
         try {
             const urlId = params.id;
 
@@ -110,9 +138,18 @@ export class UrlController {
         }
     }
 
+    /**
+     * Creates a new TinyURL with an optional custom back-half and QR code generation.
+     *
+     * @param {CreateUrlDto} createUrlDto - The data transfer object containing the details to create a TinyURL.
+     * @param {string} ipAddress - The IP address of the request.
+     * @param {Request & { user: Partial<User> }} req - The request object containing user information.
+     * @returns {Promise<GenericResponse>}
+     * @throws {BadRequestException} If an error occurs while creating the TinyURL.
+     */
     @Post()
     @UsePipes(new ZodValidationPipe(createUrlPayloadSchema))
-    async createTinyUrl(@Body() createUrlDto: CreateUrlDto, @Ip() ipAddress: string, @Req() req: Request & { user: Partial<User> }) {
+    async createTinyUrl(@Body() createUrlDto: CreateUrlDto, @Ip() ipAddress: string, @Req() req: Request & { user: Partial<User> }): Promise<GenericResponse> {
         try {
             const { generate_qr, custom_back_half } = createUrlDto;
             const userId = req.user.id;
@@ -151,9 +188,17 @@ export class UrlController {
         }
     }
 
+     /**
+     * Updates the details of an existing TinyURL by its ID.
+     *
+     * @param {Object} params - The route parameters containing the TinyURL ID.
+     * @param {UpdateUrlPayloadDto} updateUrlDto - The data transfer object containing the updated details.
+     * @returns {Promise<GenericResponse>}
+     * @throws {BadRequestException} If an error occurs while updating the TinyURL details.
+     */
     @Put(':id')
     @UsePipes(new ZodValidationPipe(updateUrlZObject))
-    async updateTinyUrlDetails(@Param() params: { id: string }, @Body() updateUrlDto: UpdateUrlPayloadDto) {
+    async updateTinyUrlDetails(@Param() params: { id: string }, @Body() updateUrlDto: UpdateUrlPayloadDto): Promise<GenericResponse> {
         try {
             const urlId = params.id;
             const { custom_back_half, title } = updateUrlDto;
@@ -175,8 +220,15 @@ export class UrlController {
         }
     }
 
+     /**
+     * Deletes a TinyURL by its ID.
+     *
+     * @param {string} id - The ID of the TinyURL to delete.
+     * @returns {Promise<GenericResponse>}
+     * @throws {BadRequestException} If an error occurs while deleting the TinyURL.
+     */
     @Delete(':id')
-    async deleteTinyUrlByUrlId(@Param('id') id: string) {
+    async deleteTinyUrlByUrlId(@Param('id') id: string): Promise<GenericResponse> {
         try {
             await this.urlService.deleteTinyUrlByUrlId(id);
             return {

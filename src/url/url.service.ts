@@ -11,7 +11,12 @@ export class UrlService {
         private urlRepository: Repository<Url>
     ) { }
 
-    getListOfTinyUrlByUserId(userId: number) {
+    /**
+     * Retrieves a list of tiny URLs created by a specific user.
+     * @param {number} userId - The ID of the user whose tiny URLs are to be fetched.
+     * @returns {Promise<Url[]>} A promise that resolves to an array of TinyUrl objects.
+     */
+    getListOfTinyUrlByUserId(userId: number): Promise<Url[]> {
         return this.urlRepository.find({
             where: {
                 created_by: userId
@@ -22,7 +27,12 @@ export class UrlService {
         });
     }
 
-    getDetailsOfTinyUrlByUrlId(urlId: string) {
+    /**
+     * Retrieves details of a tiny URL by its ID or custom back half.
+     * @param {string} urlId - The ID or custom back half of the tiny URL.
+     * @returns {Promise<Partial<Url> | undefined>} A promise that resolves to the TinyUrl object if found, or undefined if not.
+     */
+    getDetailsOfTinyUrlByUrlId(urlId: string): Promise<Partial<Url> | undefined> {
         return this.urlRepository.findOne({
             where: [
                 { id: urlId },
@@ -32,19 +42,42 @@ export class UrlService {
         });
     }
 
-    createTinyUrl(createUrlData: CreateUrlServiceDto) {
+    /**
+     * Creates a new tiny URL.
+     * @param {CreateUrlServiceDto} createUrlData - Data required to create a tiny URL.
+     * @returns {Promise<Url>} A promise that resolves to the created TinyUrl object.
+     */
+    createTinyUrl(createUrlData: CreateUrlServiceDto): Promise<Url> {
         return this.urlRepository.save(createUrlData);
     }
 
-    updateTinyUrlDetails(id: string, updateUrlData: UpdateUrlDto) {
-        return this.urlRepository.update(id, updateUrlData);
+    /**
+     * Updates the details of an existing tiny URL.
+     * @param {string} id - The ID of the tiny URL to update.
+     * @param {UpdateUrlDto} updateUrlData - Data to update the tiny URL.
+     * @returns {Promise<void>} A promise that resolves to the result of the update operation.
+     */
+    updateTinyUrlDetails(id: string, updateUrlData: UpdateUrlDto): Promise<void> {
+        this.urlRepository.update(id, updateUrlData);
+        return;
     }
 
-    deleteTinyUrlByUrlId(urlId: string) {
-        return this.urlRepository.delete(urlId);
+    /**
+     * Deletes a tiny URL by its ID.
+     * @param {string} urlId - The ID of the tiny URL to delete.
+     * @returns {Promise<void>} A promise that resolves to the result of the delete operation.
+     */
+    deleteTinyUrlByUrlId(urlId: string): Promise<void> {
+        this.urlRepository.delete(urlId);
+        return;
     }
 
-    isCustomBackHalfExist(customBackHalf: string) {
+    /**
+     * Checks if a custom back half already exists.
+     * @param {string} customBackHalf - The custom back half to check.
+     * @returns {Promise<Partial<Url> | undefined>} A promise that resolves to the TinyUrl object if the custom back half exists, or undefined if not.
+     */
+    isCustomBackHalfExist(customBackHalf: string): Promise<Partial<Url> | undefined> {
         return this.urlRepository.findOne({
             where: [
                 { custom_back_half: customBackHalf },

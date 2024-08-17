@@ -1,4 +1,23 @@
-export const getAnalyticsData = (analytics) => {
+import { Analytics } from "src/analytics/analytics.entity";
+import { EngagementOverTime, LocationData, DeviceData } from "./genericSchema";
+
+/**
+ * aggregated analytics data returned by the getAnalyticsData function
+ */
+interface AnalyticsDataResponse {
+    engagementOverTime: EngagementOverTime[];
+    locations: LocationData[];
+    deviceData: DeviceData[];
+}
+
+
+/**
+ * Processes analytics data and aggregates engagement over time, location data, and device data.
+ *
+ * @param {Analytics[]} analytics - An array of analytics objects to be processed.
+ * @returns {AnalyticsDataResponse} An object containing aggregated engagement data over time, locations, and device information.
+*/
+export const getAnalyticsData = (analytics: Analytics[]): AnalyticsDataResponse => {
 
     const { engagementOverTime, locations, deviceData } = analytics.reduce((acc, curr) => {
         // Engagement over time
