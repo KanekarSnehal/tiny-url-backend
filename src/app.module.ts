@@ -22,12 +22,12 @@ import { CacheModule } from '@nestjs/cache-manager';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule, CacheModule.register()],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get('MYSQL_HOST'),
-        port: configService.get('MYSQL_PORT'),
-        username: configService.get('MYSQL_USER'),
-        password: configService.get('MYSQL_PASS'),
-        database: configService.get('MYSQL_DB'),
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASS'),
+        database: configService.get('DB_NAME'),
         entities: [Url, User, QrCode, Analytics],
         synchronize: true,
         logging: true,
