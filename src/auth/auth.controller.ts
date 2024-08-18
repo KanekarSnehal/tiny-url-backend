@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Post, Req, Res, UsePipes } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post, Req, Res, UnauthorizedException, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/zod-validation-pipe/zod-validation-pipe.pipe';
 import { LoginDto, SignupDto, loginPayloadSchema, signupPayloadSchema } from './auth.schema';
 import { Response, Request } from 'express';
@@ -44,7 +44,8 @@ export class AuthController {
                 }
             }
         } catch (error) {
-            throw new BadRequestException(error.message);
+            if(error instanceof UnauthorizedException ) throw new UnauthorizedException();
+            else throw new BadRequestException(error.message);
         }
     }
 
@@ -75,7 +76,8 @@ export class AuthController {
                 }
             }
         } catch (error) {
-            throw new BadRequestException(error.message);
+            if(error instanceof UnauthorizedException ) throw new UnauthorizedException();
+            else throw new BadRequestException(error.message);
         }
     }
 

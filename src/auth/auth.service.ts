@@ -43,7 +43,7 @@ export class AuthService {
 
             return { accessToken, userDetails };
         } catch (error) {
-            throw new BadRequestException(error.message);
+            throw error;
         }
     }
 
@@ -76,7 +76,7 @@ export class AuthService {
             return response;
 
         } catch(error) {
-            throw new BadRequestException(error.message);
+            throw error
         }
     }
 
@@ -92,7 +92,7 @@ export class AuthService {
             await this.cacheManager.set(token, `${id}`, this.configService.get('JWT_TOKEN_EXPIRY'));
             return true;
         } catch (error) {
-            throw new BadRequestException(error.message);
+            throw error;
         }
     }
 }
